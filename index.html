@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#2788ff">
+  <meta name="description" content="企业协同办公统一入口，员工日常服务、操作手册、通知公告与智能客服。">
+  <title>企业协同办公 · 统一入口</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' rx='10' fill='%230078ff'/%3E%3Cpath d='M10 13h20v15H10z' fill='white'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="./styles.css?v=05621b9d5b3d">
+  <script defer src="./app.js?v=76258a799dcb"></script>
+  <meta name="portal-build" content="c9bfb1891bfd">
+</head>
+<body>
+  <svg class="icon-definitions" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><defs>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></symbol>
+    <symbol id="i-menu" viewBox="0 0 24 24"><path d="M3 5h18M3 12h18M3 19h18"/></symbol>
+    <symbol id="i-down" viewBox="0 0 24 24"><path d="m7 9 5 5 5-5"/></symbol>
+    <symbol id="i-right" viewBox="0 0 24 24"><path d="m9 5 7 7-7 7"/></symbol>
+    <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M4 12h16m-6-6 6 6-6 6"/></symbol>
+    <symbol id="i-send" viewBox="0 0 24 24"><path d="m3 10 18-7-7 18-4-7-7-4Zm7 4L21 3m-11 11v6l4-3"/></symbol>
+    <symbol id="i-cube" viewBox="0 0 24 24"><path d="m12 2 9 5v10l-9 5-9-5V7l9-5Zm0 10L3 7m9 5 9-5m-9 5v10M7.5 4.5l9 5"/></symbol>
+    <symbol id="i-calendar" viewBox="0 0 32 32"><rect x="5" y="7" width="22" height="21" rx="2" fill="currentColor" stroke="none"/><path d="M10 4v6m12-6v6M7 13h18" stroke="var(--icon-cutout, #1681ff)" stroke-width="2.2"/><path d="M11 18h3m4 0h3m-10 5h3m4 0h3" stroke="var(--icon-cutout, #1681ff)" stroke-width="2"/></symbol>
+    <symbol id="i-box" viewBox="0 0 32 32"><path d="m16 2 13 7.5L16 17 3 9.5 16 2ZM3 12l11.5 6.6V31L3 24.4V12Zm26 0-11.5 6.6V31L29 24.4V12Z" fill="currentColor" stroke="none"/></symbol>
+    <symbol id="i-monitor" viewBox="0 0 32 32"><path d="M4 6h24v17H4zM11 28h10m-5-5v5" stroke-width="2.6"/><path d="M7 19h18" stroke-width="1.2" opacity=".55"/></symbol>
+    <symbol id="i-lock" viewBox="0 0 32 32"><rect x="7" y="13" width="18" height="16" rx="3" fill="currentColor" stroke="none"/><path d="M11 14V9a5 5 0 0 1 10 0v5" stroke-width="3"/><path d="M16 20v4" stroke="var(--icon-cutout,#00c986)" stroke-width="2.5"/><circle cx="16" cy="19" r="2" fill="var(--icon-cutout,#00c986)" stroke="none"/></symbol>
+    <symbol id="i-money" viewBox="0 0 32 32"><rect x="6" y="5" width="20" height="24" rx="3" fill="currentColor" stroke="none"/><path d="m12 10 4 6 4-6m-9 7h10m-10 4h10m-5-5v10" stroke="var(--icon-cutout,#ff8a1e)" stroke-width="1.8"/></symbol>
+    <symbol id="i-person" viewBox="0 0 32 32"><circle cx="16" cy="10" r="5" fill="currentColor" stroke="none"/><path d="M5 28v-4c0-9 22-9 22 0v4H5Z" fill="currentColor" stroke="none"/></symbol>
+    <symbol id="i-cart" viewBox="0 0 32 32"><path d="M3 6h4l4 16h15l3-12H8" fill="currentColor" stroke-width="2"/><circle cx="13" cy="27" r="2" fill="currentColor" stroke="none"/><circle cx="25" cy="27" r="2" fill="currentColor" stroke="none"/></symbol>
+    <symbol id="i-headset" viewBox="0 0 32 32"><path d="M6 20v-6a10 10 0 0 1 20 0v9c0 4-3 6-8 6" stroke-width="2.5"/><rect x="3" y="15" width="6" height="11" rx="2.5" fill="currentColor" stroke="none"/><rect x="23" y="15" width="6" height="11" rx="2.5" fill="currentColor" stroke="none"/><path d="M17 29h4" stroke-width="3"/></symbol>
+    <symbol id="i-shield" viewBox="0 0 32 32"><path d="M16 2 27 7v9c0 7-5 11-11 15C10 27 5 23 5 16V7L16 2Z" fill="currentColor" stroke="none"/><path d="M16 6v10H9c1 5 3 8 7 11V16h7V9Z" fill="var(--icon-cutout,#00c880)" stroke="none"/></symbol>
+    <symbol id="i-layers" viewBox="0 0 32 32"><path d="m16 3 14 8-14 8L2 11 16 3Z" fill="currentColor" stroke="none"/><path d="m3 17 13 8 13-8M3 23l13 8 13-8" stroke-width="2.3"/></symbol>
+    <symbol id="i-bell" viewBox="0 0 24 24"><path d="M4 10h5l10-6v16L9 14H4v-4Zm5 4 2 7H7l-2-7m14-7c3 1 3 5 0 6" stroke-width="2"/><path d="m20 3 1-1M2 8 1 7" /></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="m6 12 4 4 8-9" stroke-width="3"/></symbol>
+  </defs></svg>
+  <div class="blue-backdrop" aria-hidden="true"></div>
+  <header class="topbar page-width">
+    <div class="home-menu"><button class="top-icon" id="menu-toggle" aria-label="展开门户导航"><svg><use href="#i-menu"/></svg></button><span>首页</span><svg class="home-chevron"><use href="#i-down"/></svg></div>
+    <form class="global-search" role="search" id="portal-search"><svg><use href="#i-search"/></svg><input aria-label="搜索制度、流程、应用、知识和服务" placeholder="搜索制度、流程、应用、知识和服务..."><button type="submit" class="sr-only">搜索</button></form>
+    <div class="top-actions"><button class="top-icon help-button" aria-label="使用帮助" data-info="使用帮助">?</button><button class="top-icon apps-button" id="apps-toggle" aria-label="查看全部应用"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></button><button class="profile-button" aria-label="个人中心" data-info="个人中心"><img src="./assets/avatar-profile.png" alt="员工头像"></button></div>
+  </header>
+  <main class="dashboard page-width" aria-label="企业协同办公统一入口">
+    <div class="primary-column">
+      <section class="panel quick-panel" aria-labelledby="quick-title">
+        <header class="panel-heading"><h2 id="quick-title"><svg class="section-icon"><use href="#i-send"/></svg>快捷入口</h2><div class="tabs" role="tablist" aria-label="快捷服务分类"><button role="tab" aria-selected="true" data-quick-tab="常用服务">常用服务</button><button role="tab" aria-selected="false" data-quick-tab="HR服务">HR服务</button><button role="tab" aria-selected="false" data-quick-tab="财务服务">财务服务</button><button role="tab" aria-selected="false" data-quick-tab="IT服务">IT服务</button></div><button class="small-search" aria-label="搜索快捷服务" data-focus-search><svg><use href="#i-search"/></svg></button></header>
+        <div class="quick-grid" id="quick-grid">
+          <button class="quick-card" data-service="会议室预定" data-category="行政"><span class="app-icon blue"><svg><use href="#i-calendar"/></svg><b class="calendar-digit">6′</b></span><span><strong>会议室预定</strong><small>会议室预定 | 线上申请</small></span></button>
+          <button class="quick-card" data-service="请假申请" data-category="HR服务"><span class="app-icon blue"><svg><use href="#i-calendar"/></svg><b class="calendar-digit">6′</b></span><span><strong>请假申请</strong><small>在线提交 快速审批</small></span></button>
+          <button class="quick-card" data-service="费用报销" data-category="财务服务"><span class="app-icon orange"><svg><use href="#i-money"/></svg></span><span><strong>费用报销</strong><small>在线提交 进度查询</small></span></button>
+          <button class="quick-card" data-service="IT报障" data-category="IT服务"><span class="app-icon blue"><svg><use href="#i-monitor"/></svg></span><span><strong>IT报障</strong><small>提交工单 快速响应</small></span></button>
+          <button class="quick-card" data-service="设备申领" data-category="行政"><span class="app-icon purple"><svg><use href="#i-box"/></svg></span><span><strong>设备申领</strong><small>办公设备 在线申请</small></span></button>
+          <button class="quick-card" data-service="账号权限/VPN" data-category="IT服务"><span class="app-icon green"><svg><use href="#i-lock"/></svg></span><span><strong>账号权限/VPN</strong><small>账号申请 权限开通</small></span></button>
+        </div>
+      </section>
+      <section class="panel manuals-panel" aria-labelledby="manuals-title">
+        <header class="panel-heading"><h2 id="manuals-title"><svg class="section-icon cube-icon"><use href="#i-cube"/></svg>员工服务中心</h2><div class="tabs" role="tablist" aria-label="员工服务资料"><button role="tab" aria-selected="true" data-manual-tab="操作手册">操作手册</button><button role="tab" aria-selected="false" data-manual-tab="员工指南">员工指南</button><button role="tab" aria-selected="false" data-manual-tab="规章制度">规章制度</button><button role="tab" aria-selected="false" data-manual-tab="常见问题">常见问题</button></div><button class="small-search" aria-label="搜索员工服务资料" data-focus-search><svg><use href="#i-search"/></svg></button></header>
+        <div class="manual-surface"><div class="manual-artboard" id="manual-artboard">
+          <img class="manual-illustration" src="./assets/manual-illustration.png" alt="员工服务的蓝白色等距办公场景插画" draggable="false">
+          <button class="manual-link travel" data-manual="差旅报销操作手册">差旅报销操作手册</button>
+          <button class="manual-link leave" data-manual="请假申请操作手册">请假申请操作手册</button>
+          <button class="manual-link access" data-manual="账号权限申请操作手册">账号权限申请操作手册</button>
+          <button class="manual-link mail" data-manual="企业邮箱配置手册">企业邮箱配置手册</button>
+          <button class="manual-link visitor" data-manual="访客预约操作手册">访客预约操作手册</button>
+        </div><div class="manual-list" id="manual-list" hidden></div></div>
+      </section>
+
+    </div>
+    <aside class="secondary-column">
+      <section class="panel schedule-panel" aria-label="日程与待办">
+        <header class="panel-heading"><svg class="section-icon"><use href="#i-calendar"/></svg><div class="tabs schedule-tabs" role="tablist" aria-label="日程与待办"><button role="tab" aria-selected="true" data-schedule="日程">日程</button><button role="tab" aria-selected="false" data-schedule="待办">待办</button></div><div class="heading-actions"><button class="add-button" aria-label="新建日程" data-info="新建日程">+</button><button class="icon-button" aria-label="查看全部日程" data-info="全部日程"><svg><use href="#i-arrow"/></svg></button></div></header>
+        <div class="schedule-list">
+          <article class="schedule-card meeting" id="meeting-card"><svg class="event-icon"><use href="#i-calendar"/></svg><div class="event-content"><h3>员工服务项目周会</h3><time>10:00 – 11:00</time><div class="event-footer"><div class="attendees"><img src="./assets/avatar-one.png" alt="参会人"><img src="./assets/avatar-two.png" alt="参会人"><img src="./assets/avatar-three.png" alt="参会人"><span>+3</span></div><div class="meeting-actions"><button class="decline" data-meeting="已拒绝">拒绝</button><button class="accept" data-meeting="已接受">接受</button></div><span class="meeting-response" hidden></span></div></div></article>
+          <article class="schedule-card delivery"><svg class="event-icon"><use href="#i-box"/></svg><div class="event-content"><h3>设备签收</h3><time>14:00 – 15:30</time><div class="attendees"><img src="./assets/avatar-one.png" alt="参与人"><img src="./assets/avatar-two.png" alt="参与人"><img src="./assets/avatar-three.png" alt="参与人"><span>+2</span></div></div></article>
+          <article class="schedule-card attendance"><span class="event-check"><svg><use href="#i-check"/></svg></span><div class="event-content"><h3>考勤异常待处理</h3></div></article>
+        </div>
+      </section>
+      <section class="panel navigation-panel" aria-labelledby="navigation-title">
+        <header class="panel-heading"><h2 id="navigation-title"><svg class="section-icon cube-icon"><use href="#i-cube"/></svg>导航入口</h2></header>
+        <div class="navigation-grid" id="navigation-grid">
+          <button data-service="员工服务中心"><span class="app-icon orange"><svg><use href="#i-person"/></svg></span><span>员工服务中心</span></button>
+          <button data-service="采购系统"><span class="app-icon green"><svg><use href="#i-cart"/></svg></span><span>采购系统</span></button>
+          <button data-service="HR系统"><span class="app-icon cyan hr-icon">HR</span><span>HR系统</span></button>
+          <button data-service="财务报销"><span class="app-icon red"><svg><use href="#i-money"/></svg></span><span>财务报销</span></button>
+          <button data-service="IT服务台"><span class="app-icon purple"><svg><use href="#i-monitor"/></svg></span><span>IT服务台</span></button>
+          <button id="online-service"><span class="app-icon blue"><svg><use href="#i-headset"/></svg></span><span>在线客服</span></button>
+          <button data-service="信息安全中心"><span class="app-icon green"><svg><use href="#i-shield"/></svg></span><span>信息安全中心</span></button>
+          <button data-service="资产平台"><span class="app-icon purple"><svg><use href="#i-layers"/></svg></span><span>资产平台</span></button>
+        </div>
+      </section>
+
+    </aside>
+      <section class="panel notices-panel" aria-labelledby="notices-title">
+        <header class="panel-heading"><h2 id="notices-title"><svg class="section-icon bright"><use href="#i-bell"/></svg>通知公告</h2><button class="more-button" data-info="通知公告">更多<svg><use href="#i-right"/></svg></button></header>
+        <div class="notice-list">
+          <button class="notice-row" data-notice="VPN系统维护通知"><span>VPN系统维护通知</span><time datetime="2026-10-07T06:00">2026-10-07 06:00</time></button>
+          <button class="notice-row" data-notice="月度费用报销提交提醒"><span>月度费用报销提交提醒</span><time datetime="2026-10-06T09:00">2026-10-06 09:00</time></button>
+          <button class="notice-row" data-notice="考勤管理制度更新通知"><span>考勤管理制度更新通知</span><time datetime="2026-10-05T10:00">2026-10-05 10:00</time></button>
+          <button class="notice-row" data-notice="会议室使用安排调整通知"><span>会议室使用安排调整通知</span><time datetime="2026-10-04T14:00">2026-10-04 14:00</time></button>
+        </div>
+      </section>
+      <section class="panel enterprise-panel" aria-labelledby="enterprise-title">
+        <header class="panel-heading"><h2 id="enterprise-title"><svg class="section-icon bright"><use href="#i-bell"/></svg>企业动态</h2><button class="more-button" id="news-more" aria-label="查看更多企业动态">更多<svg><use href="#i-right"/></svg></button></header>
+        <div class="news-carousel" id="news-carousel" role="region" aria-label="企业动态轮播" tabindex="0" data-slide="0">
+          <article class="slide slide-original is-active" id="slide-0" role="group" aria-label="第 1 张，共 3 张：员工智能客服全新上线">
+            <div class="news-orbit" aria-hidden="true"></div><span class="decor-cube cube-one" aria-hidden="true"></span><span class="decor-cube cube-two" aria-hidden="true"></span><span class="decor-cube cube-three" aria-hidden="true"></span>
+            <div class="slide-copy"><h3>员工智能客服<br>全新上线</h3><p>问制度 · 查进度 · 办业务</p><button class="slide-cta" data-action="assistant" aria-label="立即体验员工智能客服">立即体验<svg><use href="#i-right"/></svg></button></div>
+            <img class="banner-robot" src="./assets/service-robot.png" alt="蓝白色智能客服机器人">
+            <span class="robot-speech" aria-hidden="true">•••</span>
+          </article>
+          <article class="slide slide-handbook" id="slide-1" role="group" aria-label="第 2 张，共 3 张：员工服务指引" hidden inert><div class="slide-copy"><h3>办公服务指引<br>一站轻松查阅</h3><p>查制度 · 找流程 · 看手册</p><button class="slide-cta" data-action="handbook">查看指引<svg><use href="#i-right"/></svg></button></div><div class="book-illustration" aria-hidden="true"><span>员工<br>服务指南</span><i></i><i></i></div></article>
+          <article class="slide slide-security" id="slide-2" role="group" aria-label="第 3 张，共 3 张：信息安全提醒" hidden inert><div class="slide-copy"><h3>守护账号安全<br>安心高效办公</h3><p>账号保护 · VPN 使用</p><button class="slide-cta" data-action="security">查看提醒<svg><use href="#i-right"/></svg></button></div><svg class="security-illustration" aria-hidden="true"><use href="#i-shield"/></svg></article>
+          <button class="carousel-arrow carousel-prev" id="carousel-prev" aria-label="上一条企业动态">‹</button><button class="carousel-arrow carousel-next" id="carousel-next" aria-label="下一条企业动态">›</button>
+          <div class="carousel-dots" role="group" aria-label="选择企业动态"><button class="carousel-dot is-active" data-index="0" aria-label="第 1 条：员工智能客服全新上线" aria-current="true"></button><button class="carousel-dot" data-index="1" aria-label="第 2 条：员工服务指引"></button><button class="carousel-dot" data-index="2" aria-label="第 3 条：信息安全提醒"></button></div>
+          <p class="sr-only" id="carousel-status" aria-live="polite">第 1 条，共 3 条：员工智能客服全新上线</p>
+        </div>
+      </section>
+  </main>
+    <aside class="robot-concierge" id="robot-concierge" aria-label="智能客服助手" hidden>
+    <div class="robot-welcome" id="robot-welcome">
+      <button class="robot-welcome-message" id="start-robot-chat" type="button" aria-label="点击进入智能客服聊天"><span id="robot-welcome-text" aria-hidden="true"></span></button>
+      <button class="robot-welcome-close" id="dismiss-robot-welcome" aria-label="关闭欢迎语" type="button">×</button>
+    </div>
+    <p class="sr-only" id="robot-announcement" role="status" aria-atomic="true"></p>
+    <p class="sr-only" id="robot-drag-help">按住拖动或使用方向键调整位置，点击或按回车在新窗口打开聊天。</p>
+    <button class="robot-launcher" id="robot-launcher" type="button" aria-label="在新窗口打开智能客服" aria-describedby="robot-drag-help" title="点击咨询 · 按住拖动">
+      <span class="robot-launcher-art"><img src="./assets/service-robot.png" alt="" width="96" height="96" draggable="false"></span>
+    </button>
+  </aside>
+
+  <div class="toast" id="portal-toast" role="status" hidden></div>
+    <dialog class="content-dialog" id="news-dialog" aria-labelledby="news-dialog-title">
+    <header class="dialog-header">
+      <div><span class="dialog-kicker">CORPORATE NEWS</span><h2 id="news-dialog-title">企业动态</h2></div>
+      <button class="close-button" data-close="news-dialog" aria-label="关闭企业动态">×</button>
+    </header>
+    <div class="news-dialog-body" id="news-dialog-body"></div>
+  </dialog>
+
+</body>
+</html>
