@@ -103,7 +103,7 @@
       emit({ type: "start", kind });
       const understanding = rewriteQuery(question,{ topic, kind });
       const query = understanding.query;
-      let text, view, references = [];
+      let text, references = [];
       if (kind === "rag") {
         const hits = await step({ id: "retrieve", label: "检索对应文档", kind: "RAG" },"稍等下哈，我给你找找对应文档~",() => services.searchKnowledge({ titles: topic.refs, question: query, signal }),hits => hits.length ? "检索到 " + hits.length + " 份相关文档" : "未找到对应文档");
         if (!hits.length) throw new Error("没有找到可引用的文档，请换个关键词试试。");
@@ -116,8 +116,7 @@
         await step({ id: "check", label: "确认假期查询范围" },"我先确认你要查询的假期类型。",() => pause(650),types.join("、"));
         const balances = await step({ id: "query", label: "查询假期余额", kind: "Tool" },"正在查询你的假期余额，请稍等。",() => services.queryLeaveBalance({ types, question: query, signal }),items => "查询到 " + items.length + " 类假期记录");
         await step({ id: "compose", label: "整理可用假期与占用情况" },"查到了，我把可用余额和审批占用一起列给你。",() => pause(600),"分别列出可用、已使用和审批中的天数");
-        text = "你的假期余额如下：";
-        view = {type:"leave-balances",items:balances};
+        text = balances.length ? "假期余额：\n\n" + balances.map(item => item.type + "：可用 " + item.available + " 天\n已使用 " + item.used + " 天，审批中占用 " + item.pending + " 天，总额度 " + item.total + " 天").join("\n\n") : "暂时没有查到对应的假期记录，请通过 HR 系统核对。";
       } else if (kind === "skill") {
         const meeting = await window.MeetingBooking.execute({ question: query,action,now,signal,step,onEvent,adapters,delay });
         if (meeting.status === "result_unknown") onEvent({ type: "result_unknown",message: "预订结果尚未确认，请先核实状态。" });
@@ -150,7 +149,7 @@
         text = "排查结果：\n" + findings.map(item => "· " + item).join("\n") + "\n\n" + conclusion + "\n\n处理建议：\n" + hits[0].passages.map((passage,index) => (index + 1) + ". " + passage).join("\n");
       }
       emit({ type: "result", kind });
-      return { kind, query, text: understanding.intro + "\n\n" + text, view, references, actions: [], committed: false };
+      return { kind, query, text: understanding.intro + "\n\n" + text, references, actions: [], committed: false };
     } catch (error) {
       const stopped = error.name === "AbortError" || parentSignal?.aborted;
       onEvent({ type: stopped ? "cancelled" : "error", id: activeStep, message: stopped ? "已停止本次任务" : error.name === "TimeoutError" ? "等待时间较长，请稍后重试。" : "这一步暂时没有完成，你可以重试。" });

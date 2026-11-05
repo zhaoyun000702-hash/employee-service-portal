@@ -91,12 +91,8 @@
   function paramsSignature(params) { return JSON.stringify([params.employee_id,params.room_id,params.start_time,params.end_time,params.office_site,params.capacity,[...(params.equipment || [])].sort(),params.meeting_title]); }
   function allowed(employeeId,site) { return authenticated && employeeId === "DEMO-EMP-001" && officeSites.includes(site); }
   function roomMatches(room,params) { return room.office_site === params.office_site && room.capacity >= params.capacity && params.equipment.every(item => room.equipment.includes(item)); }
-  function createDemoAdapters(delay,{ getBookings = () => [], makeBookingId } = {}) {
-    function occupied(roomId,params) {
-      return [...receipts.values(),...getBookings()].some(receipt =>
-        receipt.room_id === roomId && receipt.start_time < params.end_time && params.start_time < receipt.end_time
-      );
-    }
+  function occupied(roomId,params) { return [...receipts.values()].some(receipt => receipt.room_id === roomId && receipt.start_time < params.end_time && params.start_time < receipt.end_time); }
+  function createDemoAdapters(delay) {
     return {
       getIdentity: async () => identity(),
       authenticateDemo: async () => { authenticated = true; return identity(); },
@@ -116,8 +112,7 @@
         if (!allowed(params.employee_id,params.office_site)) return { status: "denied" };
         const room = rooms.find(item => item.id === params.room_id);
         if (!room || !roomMatches(room,params) || occupied(room.id,params)) return { status: "conflict" };
-        const bookingId = makeBookingId?.(params) || "MR-" + params.start_time.slice(0,10).replace(/-/g,"") + "-" + String(++bookingSequence).padStart(4,"0");
-        const receipt = { booking_id: bookingId,status: "confirmed",employee_id: params.employee_id,room_id: room.id,room_name: room.name,office_site: room.office_site,location: room.location,start_time: params.start_time,end_time: params.end_time,capacity: params.capacity,equipment: [...params.equipment],meeting_title: params.meeting_title };
+        const receipt = { booking_id: "MR-" + params.start_time.slice(0,10).replace(/-/g,"") + "-" + String(++bookingSequence).padStart(4,"0"),status: "confirmed",employee_id: params.employee_id,room_id: room.id,room_name: room.name,office_site: room.office_site,location: room.location,start_time: params.start_time,end_time: params.end_time,capacity: params.capacity,equipment: [...params.equipment],meeting_title: params.meeting_title };
         receipts.set(key,receipt); return { status: "success",receipt: copy(receipt) };
       },
       async get_meeting_booking_status(params) {

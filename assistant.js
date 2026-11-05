@@ -1,7 +1,5 @@
 (() => {
   "use strict";
-  const isEmbedded = window.parent !== window;
-  if (isEmbedded) document.body.classList.add("is-embedded");
   const questions = [
     { title: "VPN 登录失败如何处理", category: "网络", tag: "热门", match: /vpn|网络|远程办公|连接失败/i, refs: ["VPN 登录操作手册","账号权限申请流程","远程办公常见问题","密码重置指引","联系 IT 服务台"] },
     { title: "企业邮箱首次配置指引", category: "账号", tag: "推荐", match: /邮箱|邮件|outlook/i, refs: ["企业邮箱配置指引","联系 IT 服务台"] },
@@ -37,10 +35,10 @@
   const toolFields = {
     "申请设备": [["设备类型","select","笔记本电脑","显示器","键盘鼠标","其他办公设备"],["数量","number"],["期望领用日期","date"],["使用用途","textarea"]],
     "请假申请": [["假期类型","select","年假","调休","事假","其他假期"],["开始时间","datetime-local"],["结束时间","datetime-local"],["请假事由","textarea"]],
+    "系统权限申请": [["申请系统","text"],["所需权限","text"],["使用期限","date"],["业务用途","textarea"]],
     "IT 报障": [["问题类型","select","VPN 与网络","账号与权限","办公设备","企业邮箱","其他问题"],["发生时间","datetime-local"],["问题现象","textarea"]]
   };
-  const toolIntents = {"会议室预定":"meeting","申请设备":"equipment","请假申请":"leave","假期查询":"leave_balance"};
-  const toolNames = Object.keys(toolIntents);
+  const toolNames = ["会议室预定",...Object.keys(toolFields)];
   function matchTopic(question) {
     if (/(?:座机|电话)/.test(question) && /断断续续|断续|杂音|声音|掉音/.test(question)) return { title: "座机通话异常排查", category: "设备", refs: ["座机通话异常排查指引"] };
     return questions.find(item => item.match.test(question));
@@ -68,22 +66,6 @@
   let pendingItems = [];
   let toastTimer;
 
-  function closeEmbeddedAssistant() {
-    if (isEmbedded) window.parent.postMessage({ type: "employee-assistant:close" },"*");
-  }
-  if (isEmbedded) {
-    window.addEventListener("message",event => {
-      if (event.source !== window.parent || event.data?.type !== "employee-assistant:focus") return;
-      if (sheet.open || window.PortalTasks?.isOpen) return;
-      questionInput.focus({ preventScroll: true });
-    });
-    document.addEventListener("keydown",event => {
-      if (event.key !== "Escape" || event.isComposing || event.defaultPrevented || sheet.open) return;
-      event.preventDefault();
-      closeEmbeddedAssistant();
-    });
-  }
-
   function node(tag,className,text) { const element = document.createElement(tag); if (className) element.className = className; if (text !== undefined) element.textContent = text; return element; }
   function icon(id,className) { const svg = document.createElementNS("http://www.w3.org/2000/svg","svg"); svg.setAttribute("aria-hidden","true"); if (className) svg.setAttribute("class",className); const use = document.createElementNS("http://www.w3.org/2000/svg","use"); use.setAttribute("href","#" + id); svg.append(use); return svg; }
   function toast(text) { const element = document.getElementById("chat-toast"); clearTimeout(toastTimer); element.textContent = text; element.hidden = false; toastTimer = setTimeout(() => { element.hidden = true; },3200); }
@@ -99,7 +81,6 @@
   function startConversation() {
     stopReply(); transcript.replaceChildren(); pendingItems = []; renderPending(); questionInput.value = "";
     globalThis.window?.AssistantExecution?.resetConversation?.();
-    globalThis.window?.PortalBackend?.reset?.();
     globalThis.window?.MeetingBookingUI?.deactivate?.();
     const bubble = appendMessage("assistant",assistantWelcome);
     bubble.closest("article").classList.add("welcome-message"); bubble.nextElementSibling.hidden = true;
@@ -144,6 +125,7 @@
   function showList(title,items,attribute) { const list = node("div","sheet-list"); items.forEach(item => { const button = node("button","",item); button.dataset[attribute] = item; button.append(icon("i-right")); list.append(button); }); openSheet(title,list); }
   document.getElementById("more-questions").addEventListener("click",() => showList("热门问题",questions.map(item => item.title),"question"));
   document.getElementById("more-tools").addEventListener("click",() => showList("自助工具",toolNames,"tool"));
+  document.getElementById("chat-apps").addEventListener("click",() => showList("自助工具",toolNames,"tool"));
   document.getElementById("cite-knowledge").addEventListener("click",() => showList("选择要引用的知识",Object.keys(documents),"cite"));
   document.getElementById("more-notices").addEventListener("click",() => { const list = node("div","sheet-list"); announcements.forEach((item,index) => { const button = node("button","",item.title); button.dataset.announcement = String(index); list.append(button); }); openSheet("服务公告",list); });
   function setGenerating(generating) { sendButton.classList.toggle("is-generating",generating); sendButton.querySelector("span").textContent = generating ? "停止" : "发送"; sendButton.setAttribute("aria-label",generating ? "停止生成回答" : "发送消息"); }
@@ -171,19 +153,12 @@
     if (reducedMotion) finish(true); else timer = setTimeout(tick,260);
   }
   function renderTaskActions(container,actions) {
-    if (actions.backend || actions.view?.type === "leave-balances") {
-      window.PortalBackend.render(container,actions,{onAction:(action,message) => {
-        stopReply(); appendMessage("user",message || action.label); executeTask("",null,action);
-      }});
-      return;
-    }
     window.MeetingBookingUI.render(container,actions,{ onAction: (action,message) => {
       stopReply(); appendMessage("user",message || action.label); executeTask("",null,action);
     } });
   }
   function executeTask(question,topic,action) {
     stopReply();
-    if (window.PortalBackend?.active) window.PortalBackend.deactivate();
     if (action?.type?.startsWith("meeting-") || window.AssistantExecution.classify?.(question,topic) === "skill") window.MeetingBookingUI.deactivate();
     const controller = new AbortController();
     const bubble = appendMessage("assistant"); bubble.classList.add("task-answer"); bubble.setAttribute("aria-busy","true");
@@ -217,19 +192,15 @@
       }
       if (state === "done") {
         trace.open = false;
-        const labels = { needs_input: "请补充办理信息",needs_auth: "请先认证身份",awaiting_selection: "请选择会议室",awaiting_confirmation: "等待你确认",editing: "请修改办理信息",success: "办理完成",result_unknown: "提交结果待核实",no_results: "暂无匹配会议室",query_error: "会议室查询暂未完成",stale: "请使用最新办理信息",not_created: "已核实，尚未创建",rejected: "提交未成功",cancelled: "本次流程已结束" };
-        labels.awaiting_asset_selection = "请选择要更换的设备";
+        const labels = { needs_input: "请补充预订信息",needs_auth: "请先认证身份",awaiting_selection: "请选择会议室",awaiting_confirmation: "等待你确认预订",editing: "请修改预订信息",success: "预订成功",result_unknown: "预订结果待核实",no_results: "暂无匹配会议室",query_error: "会议室查询暂未完成",stale: "请使用最新预订信息",not_created: "已核实，尚未创建预订",rejected: "预订未提交成功",cancelled: "本次流程已结束" };
         status((labels[resultStatus] || "已完成") + (completed ? " · " + completed + " 个步骤" : ""));
         if (!stepViews.size) trace.hidden = true;
-      } else if (state === "unknown") status("提交结果待核实");
+      } else if (state === "unknown") status("预订结果待核实");
       else {
         status(message || "已停止本次任务");
         answer.hidden = false;
         if (!text.textContent) text.textContent = state === "error" ? "这次任务暂时没有完成，请稍后重试。" : "已停止，你可以继续输入问题，或重新执行本次任务。";
-        const retry = node("button","task-retry","重新执行"); retry.type = "button";
-        if (action?.type?.startsWith("backend-")) retry.onclick = () => executeTask("",null,action.type === "backend-action" ? {...action,action:"refresh"} : action);
-        else retry.dataset.question = question || "预订会议室";
-        answer.append(retry);
+        const retry = node("button","task-retry","重新执行"); retry.type = "button"; retry.dataset.question = question || "预订会议室"; answer.append(retry);
       }
       bubble.setAttribute("aria-busy","false");
       stream = null; setGenerating(false); scrollConversation();
@@ -252,7 +223,6 @@
         if (event.message) status(event.message);
       }
       if (event.type === "result") status("关键步骤已完成，正在整理回答…");
-      if (event.type === "status") status(event.message);
       if (event.type === "booking-submitting") bookingSubmitted = true;
       if (event.type === "result_unknown") { resultStatus = "result_unknown"; status(event.message); }
       if (event.type === "error") settle("error",event.message);
@@ -261,17 +231,12 @@
     }
     stream = { stop: () => {
       if (committed) { text.textContent = fullText; renderTaskActions(answer,resolvedResult); settle("done"); }
-      else if (window.PortalBackend?.active && action?.action === "confirm") {
-        controller.abort(); const recovery = window.PortalBackend.recovery(action);
-        answer.hidden = false; text.textContent = recovery.text; renderTaskActions(answer,recovery); settle("unknown");
-      }
       else if (bookingSubmitted) {
         controller.abort(); const recovery = window.MeetingBooking.recoveryResult(); answer.hidden = false; text.textContent = recovery.text;
         renderTaskActions(answer,recovery); settle("unknown");
       } else { controller.abort(); settle("cancelled"); }
     } }; setGenerating(true);
-    const runner = window.PortalBackend?.active ? window.PortalBackend : window.AssistantExecution;
-    runner.run({ question, topic, action, documents, signal: controller.signal, onEvent }).then(result => {
+    window.AssistantExecution.run({ question, topic, action, documents, signal: controller.signal, onEvent }).then(result => {
       if (finished) return;
       answer.hidden = false; fullText = result.text; committed = Boolean(result.committed); resultStatus = result.status || ""; resolvedResult = result;
       const characters = Array.from(fullText); let index = 0;
@@ -283,8 +248,13 @@
         else timer = setTimeout(tick,26);
       }
       status("正在为你整理回答…"); tick();
-    }).catch(error => { if (!finished) { text.textContent = error.message; settle(error.name === "AbortError" ? "cancelled" : "error",error.message); } });
+    }).catch(error => { if (!finished) settle(error.name === "AbortError" ? "cancelled" : "error"); });
   }
+  const exampleButtons = document.getElementById("task-example-buttons");
+  window.AssistantExecution.examples.forEach(example => {
+    const button = node("button","task-example"); button.type = "button"; button.dataset.example = example.id; button.title = example.question;
+    button.append(node("span","",example.label)); exampleButtons.append(button);
+  });
   function renderPending() {
     const container = document.getElementById("composer-attachments"); container.replaceChildren(); container.hidden = !pendingItems.length;
     pendingItems.forEach((item,index) => { const chip = node("span","attachment-chip"); chip.append(node("span","",(item.type === "knowledge" ? "@ " : "") + item.name)); const remove = node("button","","×"); remove.type = "button"; remove.setAttribute("aria-label","移除 " + item.name); remove.addEventListener("click",() => { pendingItems.splice(index,1); renderPending(); }); chip.append(remove); container.append(chip); });
@@ -296,19 +266,10 @@
     const bubble = appendMessage("user",text || "请帮我查看以下内容。");
     if (items.length) bubble.append(node("div","message-attachment",items.map(item => (item.type === "knowledge" ? "引用：" : "附件：") + item.name).join("\n")));
     closeSheet();
-    if (window.PortalBackend) {
-      window.PortalBackend.ready.then(active => {
-        if (active) executeTask(text || "请说明你需要处理的问题。");
-        else dispatchLocalQuestion(text,items);
-      });
-    } else dispatchLocalQuestion(text,items);
-    questionInput.focus({ preventScroll: true });
-  }
-  function dispatchLocalQuestion(text,items) {
     if (/^(人工|转人工|人工客服|联系人工客服)$/.test(text)) { reply("我可以先帮你整理需要人工跟进的问题。请说明问题现象、影响范围与发生时间，也可以通过右侧知识入口查看“联系 IT 服务台”。",text); return; }
     const topic = questions.find(item => item.title === text) || matchTopic(text + " " + items.filter(item => item.type === "knowledge").map(item => item.name).join(" "));
     if (window.AssistantExecution.classify(text,topic) !== "chat") executeTask(text,topic);
-    else reply(items.some(item => item.type === "file") ? "已添加附件。请补充你希望核对的问题或需要办理的事项；附件尚未进行内容解析。" : "已收到你的问题。你可以咨询制度、设备、账号或网络相关的办公服务，如需人工帮助，请输入“人工”。",text);
+    else reply(items.some(item => item.type === "file") ? "已添加附件。请补充你希望核对的问题或需要办理的事项；附件尚未进行内容解析。你也可以点击上方四个入口，体验不同任务的执行过程。" : "已收到你的问题。你可以咨询制度、设备、账号或网络相关的办公服务，也可以点击上方入口，体验查文档、查询假期余额、预订会议室和 VPN 故障排查。如需人工帮助，请输入“人工”。",text);
     questionInput.focus({ preventScroll: true });
   }
   composer.addEventListener("submit",event => { event.preventDefault(); if (stream) { stopReply(); return; } sendQuestion(questionInput.value); });
@@ -325,24 +286,6 @@
     const picker = document.getElementById(inputId); document.getElementById(buttonId).addEventListener("click",() => picker.click()); picker.addEventListener("change",() => { addFiles(picker.files); picker.value = ""; });
   }
   function openTool(title) {
-    if (toolIntents[title] && window.PortalBackend) {
-      return window.PortalBackend.ready.then(active => {
-        if (!active) { openLocalTool(title); return; }
-        closeSheet(); stopReply(); appendMessage("user",title);
-        executeTask("",null,{type:"backend-start",intent:toolIntents[title],label:title});
-      });
-    }
-    openLocalTool(title);
-  }
-  function openLocalTool(title) {
-    if (title === "假期查询") {
-      const form = node("form","draft-form"),field = node("label","draft-field","假期类型"),select = node("select");
-      for (const type of ["全部","年假","调休"]) { const option = node("option","",type); option.value = type; select.append(option); }
-      field.append(select); form.append(field);
-      const submit = node("button","draft-submit","查询假期余额"); submit.type = "submit"; form.append(submit);
-      form.onsubmit = event => { event.preventDefault(); closeSheet(); sendQuestion(select.value === "全部" ? "查询我的年假和调休余额" : "查询我的" + select.value + "余额"); };
-      openSheet(title,form); return;
-    }
     if (title === "会议室预定") { closeSheet(); sendQuestion("我想预订会议室"); return; }
     const fields = toolFields[title]; if (!fields) return;
     const form = node("form","draft-form");
@@ -367,6 +310,7 @@
     if (!event.target.closest("#composer-more,#composer-menu")) { document.getElementById("composer-menu").hidden = true; document.getElementById("composer-more").setAttribute("aria-expanded","false"); }
     if (!event.target.closest("#chat-menu,#chat-navigation")) { document.getElementById("chat-navigation").hidden = true; document.getElementById("chat-menu").setAttribute("aria-expanded","false"); }
     const target = event.target.closest("button"); if (!target) return;
+    if (target.dataset.example) { const example = window.AssistantExecution.examples.find(item => item.id === target.dataset.example); if (example) sendQuestion(example.question); }
     if (target.dataset.doc) openDocument(target.dataset.doc);
     if (target.dataset.question) sendQuestion(target.dataset.question);
     if (target.dataset.tool) openTool(target.dataset.tool);
@@ -377,14 +321,12 @@
   for (const [buttonId,panelId] of [["chat-menu","chat-navigation"],["composer-more","composer-menu"]]) document.getElementById(buttonId).addEventListener("click",event => { const panel = document.getElementById(panelId); panel.hidden = !panel.hidden; event.currentTarget.setAttribute("aria-expanded",String(!panel.hidden)); });
   document.getElementById("dismiss-chat-tip").addEventListener("click",() => { document.getElementById("chat-tip").hidden = true; });
   document.getElementById("contact-support").addEventListener("click",() => sendQuestion("人工"));
-  document.getElementById("chat-help").addEventListener("click",() => openSheet("使用帮助","输入问题后点击“发送”或按回车；Shift + 回车可换行。可直接输入问题，查询资料、假期余额或办理会议室预订、设备申领和请假。预订会议室时，请先选择会议室，再核对摘要并确认提交。执行过程中逐步显示关键动作与已用时间；点击“停止”可中断。回答开头会说明本次处理的问题。"));
+  document.getElementById("chat-help").addEventListener("click",() => openSheet("使用帮助","输入问题后点击“发送”或按回车；Shift + 回车可换行。上方四个入口提供文档查询、假期余额查询、会议室预订和 VPN 故障排查。预订会议室时，请先选择会议室，再核对摘要并确认提交。执行过程中逐步显示关键动作与已用时间；点击“停止”可中断。回答开头会说明本次处理的问题。"));
   document.getElementById("chat-profile").addEventListener("click",() => {
-    openSheet("个人中心","当前可直接使用服务，查询和申请记录关联默认员工。");
+    const content = node("div"); content.append(node("p","","管理当前登录状态。退出后，办理会议室预订需重新登录。"));
+    const logout = node("button","draft-submit","退出登录"); logout.addEventListener("click",() => { window.MeetingBooking.setDemoAuthenticated(false); startConversation(); closeSheet(); toast("已退出登录。"); }); content.append(logout); openSheet("个人中心",content);
   });
-  document.getElementById("back-to-portal").addEventListener("click",() => {
-    if (isEmbedded) { closeEmbeddedAssistant(); return; }
-    location.href = new URL("./index.html",location.href).href;
-  });
+  document.getElementById("back-to-portal").addEventListener("click",() => { if (location.protocol === "blob:") { window.close(); return; } location.href = new URL(location.protocol === "file:" ? "./employee-portal.html" : "./index.html",location.href).href; });
   window.addEventListener("pagehide",() => { stopReply(); clearTimeout(toastTimer); });
   renderQuestionList();
 })();
