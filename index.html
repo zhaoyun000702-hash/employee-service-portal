@@ -7,9 +7,11 @@
   <meta name="description" content="企业协同办公统一入口，员工日常服务、操作手册、通知公告与智能客服。">
   <title>企业协同办公 · 统一入口</title>
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' rx='10' fill='%230078ff'/%3E%3Cpath d='M10 13h20v15H10z' fill='white'/%3E%3C/svg%3E">
-  <link rel="stylesheet" href="./styles.css?v=05621b9d5b3d">
-  <script defer src="./app.js?v=76258a799dcb"></script>
-  <meta name="portal-build" content="c9bfb1891bfd">
+  <link rel="stylesheet" href="./styles.css?v=fc01db693ddd">
+  <script defer src="./portal-data.js?v=01dd866eda11"></script>
+  <script defer src="./portal-navigation.js?v=05ab0f7a15ee"></script>
+  <script defer src="./app.js?v=fb12ef3824d9"></script>
+  <meta name="portal-build" content="6f8f88de8c0d">
 </head>
 <body>
   <svg class="icon-definitions" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><defs>
@@ -49,7 +51,7 @@
           <button class="quick-card" data-service="费用报销" data-category="财务服务"><span class="app-icon orange"><svg><use href="#i-money"/></svg></span><span><strong>费用报销</strong><small>在线提交 进度查询</small></span></button>
           <button class="quick-card" data-service="IT报障" data-category="IT服务"><span class="app-icon blue"><svg><use href="#i-monitor"/></svg></span><span><strong>IT报障</strong><small>提交工单 快速响应</small></span></button>
           <button class="quick-card" data-service="设备申领" data-category="行政"><span class="app-icon purple"><svg><use href="#i-box"/></svg></span><span><strong>设备申领</strong><small>办公设备 在线申请</small></span></button>
-          <button class="quick-card" data-service="账号权限/VPN" data-category="IT服务"><span class="app-icon green"><svg><use href="#i-lock"/></svg></span><span><strong>账号权限/VPN</strong><small>账号申请 权限开通</small></span></button>
+          <button class="quick-card" data-service="假期查询" data-category="HR服务"><span class="app-icon green"><svg><use href="#i-calendar"/></svg></span><span><strong>假期查询</strong><small>年假调休 余额查询</small></span></button>
         </div>
       </section>
       <section class="panel manuals-panel" aria-labelledby="manuals-title">
@@ -70,8 +72,8 @@
         <header class="panel-heading"><svg class="section-icon"><use href="#i-calendar"/></svg><div class="tabs schedule-tabs" role="tablist" aria-label="日程与待办"><button role="tab" aria-selected="true" data-schedule="日程">日程</button><button role="tab" aria-selected="false" data-schedule="待办">待办</button></div><div class="heading-actions"><button class="add-button" aria-label="新建日程" data-info="新建日程">+</button><button class="icon-button" aria-label="查看全部日程" data-info="全部日程"><svg><use href="#i-arrow"/></svg></button></div></header>
         <div class="schedule-list">
           <article class="schedule-card meeting" id="meeting-card"><svg class="event-icon"><use href="#i-calendar"/></svg><div class="event-content"><h3>员工服务项目周会</h3><time>10:00 – 11:00</time><div class="event-footer"><div class="attendees"><img src="./assets/avatar-one.png" alt="参会人"><img src="./assets/avatar-two.png" alt="参会人"><img src="./assets/avatar-three.png" alt="参会人"><span>+3</span></div><div class="meeting-actions"><button class="decline" data-meeting="已拒绝">拒绝</button><button class="accept" data-meeting="已接受">接受</button></div><span class="meeting-response" hidden></span></div></div></article>
-          <article class="schedule-card delivery"><svg class="event-icon"><use href="#i-box"/></svg><div class="event-content"><h3>设备签收</h3><time>14:00 – 15:30</time><div class="attendees"><img src="./assets/avatar-one.png" alt="参与人"><img src="./assets/avatar-two.png" alt="参与人"><img src="./assets/avatar-three.png" alt="参与人"><span>+2</span></div></div></article>
-          <article class="schedule-card attendance"><span class="event-check"><svg><use href="#i-check"/></svg></span><div class="event-content"><h3>考勤异常待处理</h3></div></article>
+          <article class="schedule-card delivery"><svg class="event-icon"><use href="#i-box"/></svg><div class="event-content"><h3><button class="event-open" data-service="设备签收">设备签收</button></h3><time>14:00 – 15:30</time><div class="attendees"><img src="./assets/avatar-one.png" alt="参与人"><img src="./assets/avatar-two.png" alt="参与人"><img src="./assets/avatar-three.png" alt="参与人"><span>+2</span></div></div></article>
+          <article class="schedule-card attendance"><span class="event-check"><svg><use href="#i-check"/></svg></span><div class="event-content"><h3><button class="event-open" data-service="考勤异常说明">考勤异常待处理</button></h3></div></article>
         </div>
       </section>
       <section class="panel navigation-panel" aria-labelledby="navigation-title">
@@ -121,9 +123,9 @@
       <button class="robot-welcome-close" id="dismiss-robot-welcome" aria-label="关闭欢迎语" type="button">×</button>
     </div>
     <p class="sr-only" id="robot-announcement" role="status" aria-atomic="true"></p>
-    <p class="sr-only" id="robot-drag-help">按住拖动或使用方向键调整位置，点击或按回车在新窗口打开聊天。</p>
-    <button class="robot-launcher" id="robot-launcher" type="button" aria-label="在新窗口打开智能客服" aria-describedby="robot-drag-help" title="点击咨询 · 按住拖动">
-      <span class="robot-launcher-art"><img src="./assets/service-robot.png" alt="" width="96" height="96" draggable="false"></span>
+    <p class="sr-only" id="robot-drag-help">按住拖动或使用方向键调整位置，点击或按回车打开聊天弹框。</p>
+    <button class="robot-launcher" id="robot-launcher" type="button" aria-label="打开智能客服聊天弹框" aria-haspopup="dialog" aria-controls="assistant-dialog" aria-describedby="robot-drag-help" title="点击咨询 · 按住拖动">
+      <span class="robot-launcher-art"><img src="./assets/service-robot.png" alt="" width="128" height="128" draggable="false"></span>
     </button>
   </aside>
 
@@ -134,6 +136,11 @@
       <button class="close-button" data-close="news-dialog" aria-label="关闭企业动态">×</button>
     </header>
     <div class="news-dialog-body" id="news-dialog-body"></div>
+  </dialog>
+  <dialog class="assistant-dialog" id="assistant-dialog" aria-labelledby="assistant-dialog-title">
+    <h2 class="sr-only" id="assistant-dialog-title">智能客服</h2>
+    <button class="assistant-dialog-close" data-close="assistant-dialog" aria-label="关闭智能客服" title="关闭（Esc）" type="button" autofocus><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></button>
+    <iframe class="assistant-dialog-frame" id="assistant-frame" title="智能客服聊天" referrerpolicy="same-origin"></iframe>
   </dialog>
 
 </body>

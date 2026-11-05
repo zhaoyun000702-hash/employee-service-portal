@@ -231,6 +231,8 @@
   .schedule-panel { grid-row: auto; }
 }
 
+.event-open{background:none;border:0;padding:0;color:inherit;font:inherit;text-align:left;cursor:pointer}.event-open:hover{text-decoration:underline;color:#087bf5}
+
 dialog { padding: 0; border: 1px solid rgb(255 255 255 / 80%); border-radius: 22px; color: #142451; box-shadow: 0 24px 100px rgb(16 61 125 / 22%); width: min(640px,calc(100vw - 40px)); max-height: calc(100dvh - 48px); }
 dialog::backdrop { background: rgb(15 39 81 / 30%); backdrop-filter: blur(5px); }
 body:has(dialog[open]) { overflow: hidden; }
@@ -255,19 +257,31 @@ body:has(dialog[open]) { overflow: hidden; }
 .article-content ul { padding-left: 20px; margin: 6px 0 18px; }
 .article-action { border: 0; background: #087bff; color: #fff; padding: 11px 18px; border-radius: 10px; margin-top: 10px; font-size: 14px; }
 
-/* A small, persistent help entry; the welcome can be dismissed independently. */
-.robot-concierge { position: fixed; z-index: 15; right: max(18px, env(safe-area-inset-right)); bottom: max(18px, env(safe-area-inset-bottom)); width: 96px; animation: robot-enter .65s cubic-bezier(.2,.75,.25,1) both; }
+.assistant-dialog { position: fixed; inset: 0; margin: auto; width: min(1240px,calc(100vw - 64px)); height: min(820px,calc(100dvh - 64px)); max-width: none; max-height: none; padding: 0; overflow: hidden; border: 1px solid #dfe8f5; border-radius: 18px; background: #fff; box-shadow: 0 24px 90px #16396038; }
+.assistant-dialog[open] { display: flex; }
+.assistant-dialog::backdrop { background: #152b4b40; backdrop-filter: blur(3px); }
+.assistant-dialog-close { position: absolute; z-index: 2; top: 10px; right: 14px; display: grid; place-items: center; width: 36px; height: 36px; padding: 0; border: 1px solid transparent; border-radius: 9px; background: #f4f7fb; color: #687d97; }
+.assistant-dialog-close svg { width: 19px; height: 19px; stroke-width: 1.8; }
+.assistant-dialog-close:hover { border-color: #cfe0f5; background: #edf4fe; color: #087cff; }
+.assistant-dialog-frame { display: block; width: 100%; height: 100%; min-width: 0; border: 0; background: #fff; }
+@media (max-width: 620px) {
+  .assistant-dialog { width: calc(100vw - 20px); height: calc(100dvh - 24px); border-radius: 14px; }
+  .assistant-dialog-close { right: 10px; }
+}
+
+/* The initial desktop position follows the gap between the sidebar panels. */
+.robot-concierge { --robot-size: 128px; position: fixed; z-index: 15; right: max(18px, env(safe-area-inset-right)); bottom: max(18px, env(safe-area-inset-bottom)); width: var(--robot-size); animation: robot-enter .65s cubic-bezier(.2,.75,.25,1) both; }
 .robot-launcher { position: relative; width: 100%; display: flex; flex-direction: column; align-items: center; padding: 0; gap: 2px; border-radius: 22px; touch-action: none; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; cursor: grab; }
 .robot-concierge.is-positioned { animation: none; }
 .robot-concierge.is-dragging .robot-launcher { cursor: grabbing; }
 .robot-concierge.is-dragging .robot-launcher .robot-launcher-art { transform: none; transition: none; }
 .robot-concierge.is-positioned .robot-launcher img { animation: none; }
-.robot-launcher-art { position: relative; display: block; width: 96px; height: 96px; transition: transform .2s ease; }
-.robot-launcher-art::before { content: ""; position: absolute; width: 66px; height: 13px; bottom: 0; left: 15px; border-radius: 50%; background: #a5ccff55; filter: blur(7px); }
-.robot-launcher img { position: relative; display: block; width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 5px 7px #326bb72b); animation: robot-float 3.5s ease-in-out .65s 2; }
+.robot-launcher-art { position: relative; display: block; width: 100%; height: var(--robot-size); transition: transform .2s ease; }
+.robot-launcher-art::before { content: ""; position: absolute; width: 68%; height: 14px; bottom: 0; left: 16%; border-radius: 50%; background: #91beff66; filter: blur(8px); }
+.robot-launcher img { position: relative; display: block; width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 7px 11px #276bd43b); animation: robot-float 3.5s ease-in-out .65s 2; }
 .robot-launcher:hover .robot-launcher-art, .robot-launcher:focus-visible .robot-launcher-art { transform: translateY(-4px); }
-.robot-welcome { position: absolute; right: 4px; bottom: 108px; width: min(280px,calc(100vw - 40px)); background: #fff; border: 1.5px solid #087cff; border-radius: 12px; box-shadow: 0 6px 22px #087cff14; }
-.robot-welcome::after { content: ""; position: absolute; right: 34px; bottom: -8px; width: 14px; height: 14px; background: #fff; border-right: 1.5px solid #087cff; border-bottom: 1.5px solid #087cff; transform: rotate(45deg); pointer-events: none; }
+.robot-welcome { position: absolute; right: 4px; bottom: calc(var(--robot-size) + 12px); width: min(280px,calc(100vw - 40px)); background: #fff; border: 1.5px solid #087cff; border-radius: 12px; box-shadow: 0 6px 22px #087cff14; }
+.robot-welcome::after { content: ""; position: absolute; right: calc(var(--robot-size) / 2 - 11px); bottom: -8px; width: 14px; height: 14px; background: #fff; border-right: 1.5px solid #087cff; border-bottom: 1.5px solid #087cff; transform: rotate(45deg); pointer-events: none; }
 .robot-welcome-message { display: block; width: 100%; min-height: 84px; padding: 16px 29px 16px 18px; border-radius: inherit; background: #fff; color: #111; text-align: left; font-size: 14px; font-weight: 400; line-height: 25px; overflow-wrap: anywhere; }
 .robot-welcome-close { position: absolute; top: 4px; right: 4px; width: 22px; height: 22px; padding: 0; border-radius: 5px; font: 18px/22px system-ui,sans-serif; color: #111; }
 .robot-welcome-close:hover { background: #eff6ff; }
@@ -276,12 +290,21 @@ body:has(dialog[open]) .robot-concierge { visibility: hidden; pointer-events: no
 @keyframes robot-enter { from { opacity: 0; } to { opacity: 1; } }
 @keyframes robot-float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
 @keyframes typing-caret { to { opacity: 0; } }
+@media (min-width: 901px) {
+  .robot-concierge {
+    left: clamp(12px, calc(var(--robot-home-x, 92vw) - var(--robot-size) / 2), calc(100vw - var(--robot-size) - 12px));
+    top: clamp(12px, calc(var(--robot-home-y, 43dvh) - var(--robot-size) / 2), calc(100dvh - var(--robot-size) - 12px));
+    right: auto;
+    bottom: auto;
+  }
+}
+@media (max-width: 900px) {
+  .robot-concierge { --robot-size: 104px; }
+}
 @media (max-width: 620px) {
-  .robot-concierge { right: max(12px,env(safe-area-inset-right)); bottom: max(14px,env(safe-area-inset-bottom)); width: 72px; }
-  .robot-launcher-art { width: 72px; height: 72px; }
-  .robot-launcher-art::before { width: 50px; left: 11px; }
-  .robot-welcome { right: 0; bottom: 84px; width: min(258px,calc(100vw - 32px)); }
-  .robot-welcome::after { right: 27px; }
+  .robot-concierge { --robot-size: 88px; right: max(12px,env(safe-area-inset-right)); bottom: max(14px,env(safe-area-inset-bottom)); }
+  .robot-welcome { right: 0; width: min(258px,calc(100vw - 32px)); }
+  .robot-welcome::after { right: calc(var(--robot-size) / 2 - 7px); }
 }
 @media (prefers-reduced-motion: reduce) {
   .robot-concierge, .robot-launcher img, .is-typing::after { animation: none; }

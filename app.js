@@ -10,12 +10,12 @@
   const concierge = document.getElementById("robot-concierge");
   const launcher = document.getElementById("robot-launcher");
   const welcome = document.getElementById("robot-welcome");
+  const assistantDialog = document.getElementById("assistant-dialog");
+  const assistantFrame = document.getElementById("assistant-frame");
   const welcomeText = "hi，我是智能客服，请问有什么可以帮助您？";
   const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   let welcomeAnimation;
-  let assistantDocumentUrl;
   let entranceTimer;
-  let welcomeDismissTimer;
   let activeIndex = 0;
   let touchStart = null;
   const returnFocus = new WeakMap();
@@ -87,7 +87,7 @@
   document.querySelectorAll("[data-close]").forEach((button) => {
     button.addEventListener("click",() => closeDialog(document.getElementById(button.dataset.close)));
   });
-  [newsDialog].forEach((dialog) => {
+  [newsDialog,assistantDialog].forEach((dialog) => {
     dialog.addEventListener("click",(event) => {
       if (event.target !== dialog) return;
       const rect = dialog.getBoundingClientRect();
@@ -158,7 +158,6 @@
   }
   function dismissWelcome() {
     clearTimeout(entranceTimer);
-    clearTimeout(welcomeDismissTimer);
     welcomeAnimation?.cancel(); welcome.hidden = true;
     document.getElementById("robot-announcement").textContent = "";
     concierge.hidden = false;
@@ -166,17 +165,21 @@
   }
   function openAssistant() {
     dismissWelcome();
-    const bundled = document.getElementById("standalone-assistant-document");
-    if (bundled && !assistantDocumentUrl) {
-      const bytes = Uint8Array.from(atob(JSON.parse(bundled.textContent)),character => character.charCodeAt(0));
-      const html = new TextDecoder().decode(bytes);
-      assistantDocumentUrl = URL.createObjectURL(new Blob([html],{ type: "text/html;charset=utf-8" }));
+    if (!assistantFrame.dataset.initialized) {
+      const bundled = document.getElementById("standalone-assistant-document");
+      if (bundled) {
+        const bytes = Uint8Array.from(atob(JSON.parse(bundled.textContent)),character => character.charCodeAt(0));
+        assistantFrame.srcdoc = new TextDecoder().decode(bytes);
+      } else {
+        const pageUrl = new URL("./assistant.html",window.location.href);
+        const revision = document.querySelector?.('meta[name="portal-build"]')?.content;
+        if (revision) pageUrl.searchParams.set("v",revision);
+        assistantFrame.src = pageUrl.href;
+      }
+      assistantFrame.dataset.initialized = "true";
     }
-    const pageUrl = new URL("./assistant.html",window.location.href);
-    const revision = document.querySelector?.('meta[name="portal-build"]')?.content;
-    if (revision) pageUrl.searchParams.set("v",revision);
-    const url = assistantDocumentUrl || pageUrl.href;
-    window.open(url,"_blank","noopener,noreferrer,width=1440,height=960,resizable=yes,scrollbars=yes");
+    openDialog(assistantDialog);
+    assistantFrame.contentWindow?.postMessage({ type: "employee-assistant:focus" },"*");
   }
   function setupRobotDragging() {
     let pointer = null;
@@ -248,6 +251,26 @@
     window.addEventListener("pagehide",() => finishDrag());
   }
   setupRobotDragging();
+  assistantFrame.addEventListener("load",() => {
+    if (assistantDialog.open) assistantFrame.contentWindow?.postMessage({ type: "employee-assistant:focus" },"*");
+  });
+  window.addEventListener("message",event => {
+    if (event.source !== assistantFrame.contentWindow) return;
+    if (event.data?.type === "employee-assistant:close") closeDialog(assistantDialog);
+  });
+  function updateRobotHomePosition() {
+    if (concierge.classList.contains("is-positioned") || document.documentElement.clientWidth <= 900) return;
+    const schedule = document.querySelector(".schedule-panel");
+    const navigation = document.querySelector(".navigation-panel");
+    if (!schedule || !navigation) return;
+    const scheduleRect = schedule.getBoundingClientRect();
+    const navigationRect = navigation.getBoundingClientRect();
+    concierge.style.setProperty("--robot-home-x",(navigationRect.left + navigationRect.width * .75) + "px");
+    concierge.style.setProperty("--robot-home-y",((scheduleRect.bottom + navigationRect.top) / 2 - 8) + "px");
+  }
+  updateRobotHomePosition();
+  window.addEventListener("resize",updateRobotHomePosition);
+  window.addEventListener("load",updateRobotHomePosition,{ once: true });
   carousel.querySelectorAll("[data-action]").forEach((button) => {
     button.addEventListener("click",() => {
       if (button.dataset.action === "assistant") openAssistant();
@@ -262,7 +285,6 @@
     welcomeAnimation = typeText(document.getElementById("robot-welcome-text"),welcomeText,{
       onComplete: () => {
         document.getElementById("robot-announcement").textContent = welcomeText;
-        welcomeDismissTimer = setTimeout(dismissWelcome,3000);
       }
     });
   },reduceMotion ? 0 : 500);
@@ -272,49 +294,36 @@
     const toast = document.getElementById("portal-toast"); toast.textContent = text; toast.hidden = false;
     clearTimeout(toastTimer); toastTimer = setTimeout(() => { toast.hidden = true; },3200);
   }
-  function showInfo(title,lines) {
-    newsTitle.textContent = title; newsBody.replaceChildren();
-    const content = document.createElement("div"); content.className = "article-content";
-    lines.forEach(line => { const p = document.createElement("p"); p.textContent = line; content.append(p); });
-    newsBody.append(content); openDialog(newsDialog);
-  }
-  const serviceDescriptions = {
-    "会议室预定":["选择会议日期、起止时间、参会人数和设备需求，查询可用会议室后完成预订。"],
-    "请假申请":["填写假期类型、开始时间、结束时间和请假事由，核对信息后提交申请。"],
-    "费用报销":["准备发票和费用明细，填写报销单并提交；已提交的单据可在财务系统中查看审批进度。"],
-    "IT报障":["请描述故障现象、出现时间与使用环境，附上报错截图，便于 IT 服务人员定位问题。"],
-    "设备申领":["选择办公设备类型，填写使用用途和领用信息，提交后等待审核与发放。"],
-    "账号权限/VPN":["请根据需要选择账号开通、权限申请或 VPN 支持服务。请勿提交密码或验证码。"]
+  const openPortal = route => { if (route) window.PortalNavigation.open(route); };
+  const openArticle = (collection,title,view) => {
+    const item = window.PortalData[collection].find(item => item.title === title);
+    if (item) openPortal({view,id:item.id});
   };
-  document.querySelectorAll("[data-service]").forEach(button => button.addEventListener("click",() => {
-    const name = button.dataset.service;
-    if(name === "员工服务中心") { document.getElementById("manuals-title").scrollIntoView({behavior:"smooth",block:"center"}); return; }
-    showInfo(name,serviceDescriptions[name] || ["在这里集中查看"+name+"相关的服务入口和操作指引。","当前可先通过员工智能客服了解办理方式。"]);
-  }));
-  document.querySelectorAll("[data-info]").forEach(button => button.addEventListener("click",() => {
-    const name = button.dataset.info;
-    if(name==="通知公告") { showInfo("通知公告",Array.from(document.querySelectorAll(".notice-row")).map(el => el.innerText.replace(/\n/g,"  "))); return; }
-    showInfo(name,name==="使用帮助" ? ["通过快捷入口找到常用办公服务，通过员工服务中心查阅操作手册。","企业动态支持左右切换，点击“立即体验”或“在线客服”即可打开智能客服。"] : ["你可以在统一门户中查看日程、通知和常用办公服务。"]);
-  }));
-  document.querySelectorAll("[data-manual]").forEach(button => button.addEventListener("click",() => showInfo(button.dataset.manual,["操作入口：请在首页快捷入口或对应业务系统中进入相关服务。","办理前准备好所需信息，核对填写内容后再提交。具体材料与审批要求以企业正式发布的制度为准。"])));
-  document.querySelectorAll("[data-notice]").forEach(button => button.addEventListener("click",() => showInfo(button.dataset.notice,[button.querySelector("time").textContent,"请及时关注本通知对应的服务安排。具体事项以企业发布的正式通知为准。"])));
+  document.querySelectorAll("[data-service]").forEach(button => button.addEventListener("click",() => openPortal(window.PortalData.routeFor(button.dataset.service))));
+  const infoRoutes = {
+    "通知公告": {view:"notices"},
+    "新建日程": {view:"service",id:"schedule"},
+    "全部日程": {view:"schedules"},
+    "使用帮助": {view:"document",id:"service-guide"},
+    "个人中心": {view:"profile"}
+  };
+  document.querySelectorAll("[data-info]").forEach(button => button.addEventListener("click",() => openPortal(infoRoutes[button.dataset.info])));
+  document.querySelectorAll("[data-manual]").forEach(button => button.addEventListener("click",() => openArticle("documents",button.dataset.manual,"document")));
+  document.querySelectorAll("[data-notice]").forEach(button => button.addEventListener("click",() => openArticle("notices",button.dataset.notice,"notice")));
   document.querySelectorAll("[data-quick-tab]").forEach(button => button.addEventListener("click",() => {
     document.querySelectorAll("[data-quick-tab]").forEach(tab => tab.setAttribute("aria-selected",String(tab === button)));
     document.querySelectorAll(".quick-card").forEach(card => { card.hidden = button.dataset.quickTab !== "常用服务" && card.dataset.category !== button.dataset.quickTab; });
   }));
-  const manualSections = {
-    "员工指南":["新员工入职指南","员工服务办理指南","办公资源使用指南","员工常用联系方式"],
-    "规章制度":["员工考勤管理制度","费用报销管理制度","信息安全管理制度","办公资产管理制度"],
-    "常见问题":["如何提交请假申请？","在哪里查询报销进度？","如何申领办公设备？","VPN 无法连接怎么办？"]
-  };
   document.querySelectorAll("[data-manual-tab]").forEach(button => button.addEventListener("click",() => {
     document.querySelectorAll("[data-manual-tab]").forEach(tab => tab.setAttribute("aria-selected",String(tab === button)));
     const isManual = button.dataset.manualTab === "操作手册";
     document.getElementById("manual-artboard").hidden = !isManual;
     const list = document.getElementById("manual-list"); list.hidden = isManual; list.replaceChildren();
-    if(!isManual) manualSections[button.dataset.manualTab].forEach(title => {
-      const item = document.createElement("button"); item.textContent = title;
-      item.addEventListener("click",() => showInfo(title,["请通过对应业务系统查看完整内容，或向员工智能客服咨询相关操作指引。"])); list.append(item);
+    if (!isManual) window.PortalData.documents.filter(doc => doc.group === button.dataset.manualTab).forEach(doc => {
+      const item = document.createElement("button");
+      item.textContent = doc.title;
+      item.addEventListener("click",() => openPortal({view:"document",id:doc.id}));
+      list.append(item);
     });
   }));
   document.querySelectorAll("[data-meeting]").forEach(button => button.addEventListener("click",() => {
@@ -329,11 +338,9 @@
   document.querySelectorAll("[data-focus-search]").forEach(button => button.addEventListener("click",() => document.querySelector("#portal-search input").focus()));
   document.getElementById("portal-search").addEventListener("submit",event => {
     event.preventDefault(); const query = event.currentTarget.querySelector("input").value.trim(); if(!query) return;
-    const matches = Array.from(document.querySelectorAll("[data-service],[data-manual],[data-notice]")).map(el => el.dataset.service || el.dataset.manual || el.dataset.notice).filter(name => name.toLowerCase().includes(query.toLowerCase()));
-    showInfo("搜索结果："+query,matches.length ? [...new Set(matches)] : ["暂未找到匹配的入口。试试“请假”“报销”“设备”或“VPN”。"]);
+    openPortal({view:"search",q:query});
   });
   ["menu-toggle","apps-toggle"].forEach(id => document.getElementById(id).addEventListener("click",() => {
-    document.getElementById("navigation-grid").scrollIntoView({behavior:"smooth",block:"center"});
-    document.querySelector("#navigation-grid button").focus({preventScroll:true});
+    openPortal({view:"apps"});
   }));
 })();
