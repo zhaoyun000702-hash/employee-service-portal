@@ -6,12 +6,14 @@
   <meta name="theme-color" content="#2788ff">
   <title>智能客服 · 企业员工服务</title>
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' rx='10' fill='%230078ff'/%3E%3Cpath d='M10 13h20v15H10z' fill='white'/%3E%3C/svg%3E">
-  <link rel="stylesheet" href="./assistant.css?v=c68d80c9dcae">
-  <script defer src="./meeting-booking.js?v=41f74ac0f106"></script>
-  <script defer src="./meeting-booking-ui.js?v=dd7a3feaacf6"></script>
-  <script defer src="./assistant-execution.js?v=44b0fa14bed2"></script>
-  <script defer src="./assistant.js?v=a01eca86c816"></script>
-  <meta name="portal-build" content="c9bfb1891bfd">
+  <link rel="stylesheet" href="./assistant.css?v=ac4394c21127">
+  <script defer src="./task-store.js?v=0462ab0d1e03"></script>
+  <script defer src="./meeting-booking.js?v=1ad38d2d9759"></script>
+  <script defer src="./meeting-booking-ui.js?v=106dd92566e3"></script>
+  <script defer src="./assistant-execution.js?v=68d01c8477fd"></script>
+  <script defer src="./task-panel.js?v=b72599f7e878"></script>
+  <script defer src="./assistant.js?v=ba13274aed20"></script>
+  <meta name="portal-build" content="c41958d5f433">
 </head>
 <body class="assistant-page">
   <svg class="icon-definitions" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><defs>
@@ -51,8 +53,15 @@
   <header class="assistant-topbar page-width">
     <div class="home-menu"><button class="top-icon" id="chat-menu" aria-label="打开页面导航" aria-expanded="false" aria-controls="chat-navigation"><svg><use href="#i-menu"/></svg></button><span>智能客服</span><svg class="home-chevron" aria-hidden="true"><use href="#i-down"/></svg></div>
     <nav class="chat-navigation" id="chat-navigation" aria-label="页面导航" hidden><button id="back-to-portal">返回办公首页</button><button data-new-conversation>开始新对话</button></nav>
-    <div class="top-actions"><button class="top-icon help-button" id="chat-help" aria-label="使用帮助">?</button><button class="top-icon apps-button" id="chat-apps" aria-label="查看自助工具"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></button><button class="profile-button" id="chat-profile" aria-label="个人中心"><img src="./assets/avatar-profile.png" alt="员工头像"></button></div>
+    <div class="top-actions"><button class="top-icon help-button" id="chat-help" aria-label="使用帮助">?</button><button class="today-task-toggle" id="today-task-toggle" type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="today-task-panel" aria-label="查看今日任务"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6h12M9 12h12M9 18h12"/><path d="M3 6h.01M3 12h.01M3 18h.01" stroke-width="3"/></svg><span class="today-task-label">今日任务</span><span class="today-task-count" id="today-task-count" hidden>0</span></button><button class="profile-button" id="chat-profile" aria-label="个人中心"><img src="./assets/avatar-profile.png" alt="员工头像"></button></div>
   </header>
+  <section class="today-task-panel" id="today-task-panel" role="dialog" aria-modal="false" aria-labelledby="today-task-title" tabindex="-1" hidden>
+    <header class="today-task-heading"><h2 id="today-task-title">今日任务</h2><div><button type="button" id="refresh-tasks" class="today-task-icon" aria-label="刷新任务" title="刷新任务"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 10a8 8 0 1 0-1 7M20 4v6h-6"/></svg></button><button type="button" id="close-tasks" class="today-task-icon" aria-label="关闭任务列表"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></button></div></header>
+    <div class="today-task-controls" id="today-task-controls"><div class="today-task-date-row"><input type="date" id="today-task-date" aria-label="按办理日期筛选任务"><button type="button" id="all-task-dates">查看全部 ›</button></div><div class="today-task-filters" role="group" aria-label="按任务状态筛选"><button type="button" data-task-filter="all" aria-pressed="true">全部 <span>—</span></button><button type="button" data-task-filter="pending" aria-pressed="false">待处理 <span>—</span></button><button type="button" data-task-filter="completed" aria-pressed="false">已完成 <span>—</span></button></div></div>
+    <button type="button" class="today-task-back" id="back-to-tasks" hidden>‹ 返回任务列表</button>
+    <div class="today-task-list" id="today-task-list" aria-live="polite" aria-busy="false"><p class="today-task-empty">正在读取任务…</p></div>
+    <footer class="today-task-footer">办理结果自动同步 · 仅保存在当前浏览器</footer>
+  </section>
   <main class="assistant-workspace page-width">
     <section class="chat-surface" aria-label="智能客服聊天">
       <div class="chat-tip" id="chat-tip"><svg aria-hidden="true"><use href="#chat-info"/></svg><p>如未能解决问题，可尝试换个问法或发送“人工”转接客服</p><button id="dismiss-chat-tip" aria-label="关闭提示">×</button></div>

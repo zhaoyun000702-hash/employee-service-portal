@@ -16,7 +16,8 @@
     { id: "C101", name: "C101 会议室", office_site: "研发园区", location: "C栋1层", capacity: 8, equipment: ["视频会议","投影"] }
   ];
   const receipts = new Map(), issuedConfirmations = new Map();
-  let authenticated = true, sequence = 0, bookingSequence = 0, activeRun = 0;
+  const previousSequence = (window.PortalTaskStore?.list({ all: true }).items || []).reduce((max,item) => Math.max(max,Number(item.id.split("-").at(-1)) || 0),0);
+  let authenticated = true, sequence = 0, bookingSequence = previousSequence, activeRun = 0;
   const identity = () => authenticated ? { employee_id: "DEMO-EMP-001", office_sites: [...officeSites] } : null;
   const newTask = () => ({ id: "meeting-task-" + ++sequence, version: 0, status: "idle", slots: { equipment: [] }, employee_id: null, evidence: null, selected: null, confirmation: null, submission: null, receipt: null, lastQuestion: "" });
   let task = newTask();
@@ -132,6 +133,7 @@
     const expected = task.submission?.params;
     if (!receipt?.booking_id || receipt.status !== "confirmed" || expected && (receipt.room_id !== expected.room_id || receipt.start_time !== expected.start_time || receipt.end_time !== expected.end_time || receipt.employee_id && receipt.employee_id !== expected.employee_id)) return recoveryResult();
     task.receipt = copy(receipt); if (task.submission) task.submission.status = "success";
+    window.PortalTaskStore?.recordMeeting(receipt);
     return makeResult("success","会议室预订成功，回执信息如下。",{ type: "receipt",receipt: copy(receipt) });
   }
   async function execute({ question,action: incoming,now,signal,step,onEvent = () => {},adapters,delay }) {

@@ -7,9 +7,9 @@
   <meta name="description" content="企业协同办公统一入口，员工日常服务、操作手册、通知公告与智能客服。">
   <title>企业协同办公 · 统一入口</title>
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' rx='10' fill='%230078ff'/%3E%3Cpath d='M10 13h20v15H10z' fill='white'/%3E%3C/svg%3E">
-  <link rel="stylesheet" href="./styles.css?v=05621b9d5b3d">
-  <script defer src="./app.js?v=76258a799dcb"></script>
-  <meta name="portal-build" content="c9bfb1891bfd">
+  <link rel="stylesheet" href="./styles.css?v=1715beb6d691">
+  <script defer src="./app.js?v=fdfb6308eb01"></script>
+  <meta name="portal-build" content="9520f381a8bf">
 </head>
 <body>
   <svg class="icon-definitions" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><defs>
@@ -121,20 +121,17 @@
       <button class="robot-welcome-close" id="dismiss-robot-welcome" aria-label="关闭欢迎语" type="button">×</button>
     </div>
     <p class="sr-only" id="robot-announcement" role="status" aria-atomic="true"></p>
-    <p class="sr-only" id="robot-drag-help">按住拖动或使用方向键调整位置，点击或按回车在新窗口打开聊天。</p>
-    <button class="robot-launcher" id="robot-launcher" type="button" aria-label="在新窗口打开智能客服" aria-describedby="robot-drag-help" title="点击咨询 · 按住拖动">
-      <span class="robot-launcher-art"><img src="./assets/service-robot.png" alt="" width="96" height="96" draggable="false"></span>
+    <p class="sr-only" id="robot-drag-help">按住拖动或使用方向键调整位置，点击或按回车打开聊天弹框。</p>
+    <button class="robot-launcher" id="robot-launcher" type="button" aria-label="打开智能客服" aria-haspopup="dialog" aria-controls="assistant-dialog" aria-describedby="robot-drag-help" title="点击咨询 · 按住拖动">
+      <span class="robot-launcher-art"><img src="./assets/service-robot.png" alt="" width="128" height="128" draggable="false"></span>
     </button>
   </aside>
 
   <div class="toast" id="portal-toast" role="status" hidden></div>
-    <dialog class="content-dialog" id="news-dialog" aria-labelledby="news-dialog-title">
-    <header class="dialog-header">
-      <div><span class="dialog-kicker">CORPORATE NEWS</span><h2 id="news-dialog-title">企业动态</h2></div>
-      <button class="close-button" data-close="news-dialog" aria-label="关闭企业动态">×</button>
-    </header>
-    <div class="news-dialog-body" id="news-dialog-body"></div>
+  <dialog class="assistant-dialog" id="assistant-dialog" aria-labelledby="assistant-dialog-title">
+    <h2 class="sr-only" id="assistant-dialog-title">智能客服</h2>
+    <button class="assistant-dialog-close" data-close="assistant-dialog" aria-label="关闭智能客服" title="关闭（Esc）" type="button" autofocus><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></button>
+    <iframe class="assistant-dialog-frame" id="assistant-frame" title="智能客服聊天" referrerpolicy="same-origin"></iframe>
   </dialog>
-
 </body>
 </html>

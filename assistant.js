@@ -1,5 +1,7 @@
 (() => {
   "use strict";
+  const isEmbedded = window.parent !== window;
+  if (isEmbedded) document.body.classList.add("is-embedded");
   const questions = [
     { title: "VPN 登录失败如何处理", category: "网络", tag: "热门", match: /vpn|网络|远程办公|连接失败/i, refs: ["VPN 登录操作手册","账号权限申请流程","远程办公常见问题","密码重置指引","联系 IT 服务台"] },
     { title: "企业邮箱首次配置指引", category: "账号", tag: "推荐", match: /邮箱|邮件|outlook/i, refs: ["企业邮箱配置指引","联系 IT 服务台"] },
@@ -66,6 +68,22 @@
   let pendingItems = [];
   let toastTimer;
 
+  function closeEmbeddedAssistant() {
+    if (isEmbedded) window.parent.postMessage({ type: "employee-assistant:close" },"*");
+  }
+  if (isEmbedded) {
+    window.addEventListener("message",event => {
+      if (event.source !== window.parent || event.data?.type !== "employee-assistant:focus") return;
+      if (sheet.open || window.PortalTasks?.isOpen) return;
+      questionInput.focus({ preventScroll: true });
+    });
+    document.addEventListener("keydown",event => {
+      if (event.key !== "Escape" || event.isComposing || event.defaultPrevented || sheet.open) return;
+      event.preventDefault();
+      closeEmbeddedAssistant();
+    });
+  }
+
   function node(tag,className,text) { const element = document.createElement(tag); if (className) element.className = className; if (text !== undefined) element.textContent = text; return element; }
   function icon(id,className) { const svg = document.createElementNS("http://www.w3.org/2000/svg","svg"); svg.setAttribute("aria-hidden","true"); if (className) svg.setAttribute("class",className); const use = document.createElementNS("http://www.w3.org/2000/svg","use"); use.setAttribute("href","#" + id); svg.append(use); return svg; }
   function toast(text) { const element = document.getElementById("chat-toast"); clearTimeout(toastTimer); element.textContent = text; element.hidden = false; toastTimer = setTimeout(() => { element.hidden = true; },3200); }
@@ -125,7 +143,6 @@
   function showList(title,items,attribute) { const list = node("div","sheet-list"); items.forEach(item => { const button = node("button","",item); button.dataset[attribute] = item; button.append(icon("i-right")); list.append(button); }); openSheet(title,list); }
   document.getElementById("more-questions").addEventListener("click",() => showList("热门问题",questions.map(item => item.title),"question"));
   document.getElementById("more-tools").addEventListener("click",() => showList("自助工具",toolNames,"tool"));
-  document.getElementById("chat-apps").addEventListener("click",() => showList("自助工具",toolNames,"tool"));
   document.getElementById("cite-knowledge").addEventListener("click",() => showList("选择要引用的知识",Object.keys(documents),"cite"));
   document.getElementById("more-notices").addEventListener("click",() => { const list = node("div","sheet-list"); announcements.forEach((item,index) => { const button = node("button","",item.title); button.dataset.announcement = String(index); list.append(button); }); openSheet("服务公告",list); });
   function setGenerating(generating) { sendButton.classList.toggle("is-generating",generating); sendButton.querySelector("span").textContent = generating ? "停止" : "发送"; sendButton.setAttribute("aria-label",generating ? "停止生成回答" : "发送消息"); }
@@ -156,6 +173,13 @@
     window.MeetingBookingUI.render(container,actions,{ onAction: (action,message) => {
       stopReply(); appendMessage("user",message || action.label); executeTask("",null,action);
     } });
+    const id = actions?.view?.type === "receipt" && actions.view.receipt?.booking_id;
+    if (id && window.PortalTasks && window.PortalTaskStore.detail(id)) {
+      const link = node("button","task-record-link","已同步到今日任务 · 查看任务 ›");
+      link.type = "button";
+      link.onclick = () => window.PortalTasks.open(id);
+      container.append(link);
+    }
   }
   function executeTask(question,topic,action) {
     stopReply();
@@ -326,7 +350,7 @@
     const content = node("div"); content.append(node("p","","管理当前登录状态。退出后，办理会议室预订需重新登录。"));
     const logout = node("button","draft-submit","退出登录"); logout.addEventListener("click",() => { window.MeetingBooking.setDemoAuthenticated(false); startConversation(); closeSheet(); toast("已退出登录。"); }); content.append(logout); openSheet("个人中心",content);
   });
-  document.getElementById("back-to-portal").addEventListener("click",() => { if (location.protocol === "blob:") { window.close(); return; } location.href = new URL(location.protocol === "file:" ? "./employee-portal.html" : "./index.html",location.href).href; });
+  document.getElementById("back-to-portal").addEventListener("click",() => { if (isEmbedded) { closeEmbeddedAssistant(); return; } if (location.protocol === "blob:") { window.close(); return; } location.href = new URL(location.protocol === "file:" ? "./employee-portal.html" : "./index.html",location.href).href; });
   window.addEventListener("pagehide",() => { stopReply(); clearTimeout(toastTimer); });
   renderQuestionList();
 })();
